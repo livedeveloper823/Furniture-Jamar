@@ -3,35 +3,8 @@ import openpyxl.workbook
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-import openpyxl, json, re
+import openpyxl, json, re, func
 
-
-def wait_url(driver: webdriver.Chrome, url: str):
-    while True:
-        cur_url = driver.current_url
-        if cur_url == url:
-            break
-        sleep(0.1)
-
-def find_element(driver: webdriver.Chrome, whichBy, unique: str) -> WebElement:
-    while True:
-        try:
-            element = driver.find_element(whichBy, unique)
-            break
-        except:
-            pass
-        sleep(1)
-    return element
-
-def find_elements(driver : webdriver.Chrome, whichBy, unique: str) -> list[WebElement]:
-    while True:
-        try:
-            elements = driver.find_elements(whichBy, unique)
-            break
-        except:
-            pass
-        sleep(1)
-    return elements
 
 wb = openpyxl.Workbook()
 
@@ -120,7 +93,7 @@ driver.maximize_window()
 
 for url in urls:
     driver.get(url)
-    wait_url(driver, url)
+    func.wait_url(driver, url)
 
     try:
         driver.find_element(By.CLASS_NAME, "mfp-close").click()
@@ -144,7 +117,7 @@ for url in urls:
             break
         sleep(0.1)
 
-    products = find_elements(driver, By.CLASS_NAME, "card-views")
+    products = func.find_elements(driver, By.CLASS_NAME, "card-views")
     product_urls = []
     
     for product in products:
@@ -162,15 +135,15 @@ for url in urls:
             driver.find_element(By.CLASS_NAME, "contenedor-parrafo-boton-registra-404")
             pass
         except:
-            product_num = re.findall(r'\d+', find_element(driver, By.CLASS_NAME, "txt-sku").text)[0]
+            product_num = re.findall(r'\d+', func.find_element(driver, By.CLASS_NAME, "txt-sku").text)[0]
             print(product_num)
             sheet[f'D{match_num +2}'] = product_num
-            product_name = find_element(driver, By.CLASS_NAME, "product-title").text.split("\n")[0]
+            product_name = func.find_element(driver, By.CLASS_NAME, "product-title").text.split("\n")[0]
             # product_subname = find_element(driver, By.CLASS_NAME, "product-title").text.split("\n")[1]
             print(product_name)
             sheet[f'E{match_num +2}'] = product_name
             # detail dropdown click!
-            find_element(driver, By.CLASS_NAME, "container-detail-product").find_elements(By.TAG_NAME, "details")[1].click()
+            func.find_element(driver, By.CLASS_NAME, "container-detail-product").find_elements(By.TAG_NAME, "details")[1].click()
             print("Clicked!")
             sleep(1)
             try:
@@ -179,7 +152,7 @@ for url in urls:
                 pass
 
             # Get data of product
-            product_detail = find_element(driver, By.CLASS_NAME, "container-visor-detail").find_element(By.CLASS_NAME, "container-detail-product").find_elements(By.TAG_NAME, "details")[1].find_element(By.CLASS_NAME, "product-description").find_elements(By.XPATH, ".//div/table")
+            product_detail = func.find_element(driver, By.CLASS_NAME, "container-visor-detail").find_element(By.CLASS_NAME, "container-detail-product").find_elements(By.TAG_NAME, "details")[1].find_element(By.CLASS_NAME, "product-description").find_elements(By.XPATH, ".//div/table")
             print(len(product_detail))
             # Product measurements
             try:
@@ -267,7 +240,7 @@ for url in urls:
                         sheet[f'V{match_num +2}'] = product_warranty_includes
             except:
                 pass
-            image_url = find_element(driver, By.CLASS_NAME, "container-visor-product").find_element(By.TAG_NAME, "img").get_attribute("src")
+            image_url = func.find_element(driver, By.CLASS_NAME, "container-visor-product").find_element(By.TAG_NAME, "img").get_attribute("src")
             sheet[f'W{match_num + 1}'] = image_url
             workbook.save('jamar.xlsx')
         
