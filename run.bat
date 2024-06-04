@@ -1,0 +1,3 @@
+python jamar.py
+
+pause
